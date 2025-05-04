@@ -3,12 +3,24 @@ import { supabase } from '../app.js';
 class Login extends HTMLElement {
   connectedCallback() {
     this.innerHTML = `
-      <h2>Login</h2>
-      <input id="email" placeholder="Email" /><br/>
-      <input id="password" type="password" placeholder="Password" /><br/>
-      <button id="loginBtn">Login</button>
+      <div class="card mx-auto" style="max-width: 400px;">
+        <div class="card-body">
+          <h2 class="card-title text-center mb-4">Login</h2>
+          <div id="loginForm" submit="nosubmit">
+            <div class="mb-3">
+              <label for="email" class="form-label">Email address</label>
+              <input id="email" type="email" class="form-control" placeholder="Enter email" required>
+            </div>
+            <div class="mb-3">
+              <label for="password" class="form-label">Password</label>
+              <input id="password" type="password" class="form-control" placeholder="Password" required>
+            </div>
+            <button type="button" id="loginBtn" class="btn btn-primary w-100">Login</button>
+          </div>
+        </div>
+      </div>
     `;
-    this.querySelector('#loginBtn').onclick = this.login.bind(this);
+    this.querySelector('#loginBtn').addEventListener('click', this.login.bind(this));
   }
 
   async login() {
