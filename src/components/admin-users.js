@@ -2,7 +2,7 @@ import { supabase } from '../app.js';
 
 class AdminUsers extends HTMLElement {
   async connectedCallback() {
-    const { data, error } = await supabase.from('users').select('*');
+    const { data, error } = await supabase.from('profiles').select('*');
     if (error) {
       alert(error.message);
       return;
@@ -10,23 +10,22 @@ class AdminUsers extends HTMLElement {
 
     this.innerHTML = `
       <h2>User Management</h2>
-      <table border="1">
-        <tr><th>Email</th><th>First Name</th><th>Last Name</th><th>Project</th><th>Role</th><th>Actions</th></tr>
+      <table class="table" border="1">
+        <tr><th>Email</th><th>First Name</th><th>Last Name</th><th>Role</th><th>Actions</th></tr>
         ${data.map(user => `
           <tr>
             <td>${user.email}</td>
-            <td><input value="${user.first_name}" id="fn-${user.id}" /></td>
-            <td><input value="${user.last_name}" id="ln-${user.id}" /></td>
-            <td><input value="${user.project}" id="pr-${user.id}" /></td>
+            <td><input class="form-control" value="${user.first_name}" id="fn-${user.id}" /></td>
+            <td><input class="form-control" value="${user.last_name}" id="ln-${user.id}" /></td>
             <td>
-              <select id="role-${user.id}">
+              <select class="form-control" id="role-${user.id}">
                 <option value="user" ${user.role === 'user' ? 'selected' : ''}>User</option>
                 <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Admin</option>
               </select>
             </td>
             <td>
-              <button onclick="document.querySelector('admin-users').updateUser('${user.id}')">Update</button>
-              <button onclick="document.querySelector('admin-users').deleteUser('${user.id}')">Delete</button>
+              <button class="btn btn-success" onclick="document.querySelector('admin-users').updateUser('${user.id}')">Update</button>
+              <button class="btn btn-danger" onclick="document.querySelector('admin-users').deleteUser('${user.id}')">Delete</button>
             </td>
           </tr>
         `).join('')}
@@ -37,10 +36,9 @@ class AdminUsers extends HTMLElement {
   async updateUser(userId) {
     const first_name = this.querySelector(`#fn-${userId}`).value;
     const last_name = this.querySelector(`#ln-${userId}`).value;
-    const project = this.querySelector(`#pr-${userId}`).value;
     const role = this.querySelector(`#role-${userId}`).value;
 
-    const { error } = await supabase.from('users').update({ first_name, last_name, project, role }).eq('id', userId);
+    const { error } = await supabase.from('profiles').update({ first_name, last_name, role }).eq('id', userId);
     if (error) {
       alert(error.message);
       return;
@@ -51,7 +49,7 @@ class AdminUsers extends HTMLElement {
   }
 
   async deleteUser(userId) {
-    const { error } = await supabase.from('users').delete().eq('id', userId);
+    const { error } = await supabase.from('profiles').delete().eq('id', userId);
     if (error) {
       alert(error.message);
       return;

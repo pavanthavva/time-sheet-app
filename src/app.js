@@ -12,7 +12,7 @@ export const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 window.onload = async () => {
   const session = await supabase.auth.getSession();
   if (!session.data.session) {
-    document.getElementById('app').innerHTML = '<login-component></login-component>';
+    navigateTo('login-component')
   } else {
     routeByRole(session.data.session.user);
   }
@@ -24,7 +24,7 @@ export const ROLES = {
 }
 
 async function routeByRole(authUser) {
-  const {id: userId} = authUser;
+  const { id: userId } = authUser;
   const { data, error: profileError } = await supabase.from('profiles').select('*').eq('id', userId).single();
   let profileFetched = data;
 
@@ -35,9 +35,9 @@ async function routeByRole(authUser) {
       //   await supabase.auth.admin.getUserById(userId);
       // if (authError) throw authError;
 
-      const {data: newProfile, error: insertError} = await supabase
+      const { data: newProfile, error: insertError } = await supabase
         .from('profiles')
-        .insert({id: userId, email: authUser?.email || '', role: ROLES.USER})
+        .insert({ id: userId, email: authUser?.email || '', role: ROLES.USER })
         .select()
         .single();
 
@@ -49,11 +49,40 @@ async function routeByRole(authUser) {
   }
 
   if (data.role === ROLES.ADMIN) {
-    document.getElementById('app').innerHTML = '<admin-users></admin-users>';
+    document.getElementById("nav-admin").classList.remove("d-none");
+    navigateTo("admin-users");
   } else {
-    document.getElementById('app').innerHTML = '<time-entry></time-entry>';
+    document.getElementById("nav-user").classList.remove("d-none");
+    navigateTo("time-entry");
   }
 }
-function navigateTo(componentName) {
-  document.getElementById('app').innerHTML = `<${componentName}></${componentName}>`;
+
+async function navigateTo(componentName, event) {
+  let userWelcome = "";
+  if (event) {
+    document.querySelector("#nav-admin-ul")?.querySelector(".active")?.classList.remove("active");
+    document.querySelector("#nav-user-ul")?.querySelector(".active")?.classList.remove("active");
+    event.currentTarget.classList.add("active");
+  }
+  if (componentName) {
+    switch (componentName) {
+      case "login-component":
+        const { error } = await supabase.auth.signOut();
+        document.getElementById("nav-admin").classList.add("d-none");
+        document.getElementById("nav-user").classList.add("d-none");
+        if (error) {
+          alert(error);
+        }
+        break;
+      default:
+        const session = await supabase.auth.getSession();
+        if (session.data.session) {
+          userWelcome = "<h4 class='text-center text-bg-warning'> Welcome " + session.data.session.user.email + "</h4>";
+        }
+        break;
+    }
+    document.getElementById('app').innerHTML = `${userWelcome}<${componentName}></${componentName}>`;
+  }
 }
+
+window.navigateTo = navigateTo;

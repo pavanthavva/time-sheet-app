@@ -47,7 +47,7 @@ class Signup extends HTMLElement {
     }
 
     const userId = data.user.id;
-    const { error: insertError } = await supabase.from('users').insert([
+    const { error: insertError } = await supabase.from('profiles').insert([
       { id: userId, email, first_name, last_name, project, role: 'user' }
     ]);
 
