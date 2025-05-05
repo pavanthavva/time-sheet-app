@@ -22,10 +22,6 @@ class Signup extends HTMLElement {
             <label for="last_name" class="form-label">Last Name</label>
             <input id="last_name" type="text" class="form-control" placeholder="Last Name">
           </div>
-          <div class="mb-3">
-            <label for="project" class="form-label">Project</label>
-            <input id="project" type="text" class="form-control" placeholder="Project">
-          </div>
           <button id="signupBtn" class="btn btn-success w-100">Sign Up</button>
         </div>
       </div>
@@ -38,17 +34,19 @@ class Signup extends HTMLElement {
     const password = this.querySelector('#password').value;
     const first_name = this.querySelector('#first_name').value;
     const last_name = this.querySelector('#last_name').value;
-    const project = this.querySelector('#project').value;
+    // const project = this.querySelector('#project').value;
 
-    const { data, error } = await supabase.auth.signUp({ email, password });
+    const { data, error } = await supabase.auth.signUp({
+      email, password, email_confirm: true
+    });
     if (error) {
       alert(error.message);
       return;
     }
 
     const userId = data.user.id;
-    const { error: insertError } = await supabase.from('profiles').insert([
-      { id: userId, email, first_name, last_name, project, role: 'user' }
+    const { error: insertError } = await supabase.from('profiles').upsert([
+      { id: userId, email, first_name, last_name, role: 'user' }
     ]);
 
     if (insertError) {
